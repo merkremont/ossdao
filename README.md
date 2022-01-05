@@ -17,6 +17,19 @@ Now this command creates a directory named node_modules and installs all the req
 npm install
 ```
 
+## Configuration
+
+Please rename `.env_template` into `.env`, then set your own *Git credentials* bellow:
+
+```shell
+GIT_NAME=""    # Your name
+GIT_EMAIL=""   # Your email
+REPO_URL=""    # Repo URL (eg. https://github.com/merkremont/ossdao)
+BRANCH_NAME="main"  # default branch, if you don't have alter branch please don't edit
+```
+
+## Running
+
 Finally, run the project to see what the moment package does.
 
 ```javascript
