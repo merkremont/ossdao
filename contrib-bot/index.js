@@ -1,14 +1,18 @@
-const jsonfile = require("jsonfile");
-const moment = require("moment");
-const simpleGit = require("simple-git");
-const random = require("random");
+const jsonfile = require('jsonfile')
+const moment = require('moment')
+const random = require('random')
+const git = require('simple-git')()
 
-const FILE_PATH = "./data/date.json";
+require('dotenv').config()
+
+const initialiseRepo = (git) => {
+    return git.init()
+        .then(() => git.addRemote('origin', process.env.REPO_URL))
+}
 
 const makeCommit = (n) => {
-    if (n === 0) return simpleGit().push();
-    const x = random.int(0, 54);
-    const y = random.int(0, 6);
+    const x = random.int(0, 54)
+    const y = random.int(0, 6)
     const DATE = moment()
         .subtract(1, "y")
         .add(1, "d")
@@ -19,13 +23,19 @@ const makeCommit = (n) => {
         date: DATE,
     };
 
-    console.log("Date now:", DATE);
-    jsonfile.writeFile(FILE_PATH, data, () => {
-        simpleGit()
-        .add([FILE_PATH])
-        .commit(DATE, { "--date": DATE }, makeCommit.bind(this, --n))
-        .push();
-    });
-};
+    jsonfile.writeFile(process.env.DATA_PATH, data, () => {
+        git
+            .add([process.env.DATA_PATH])
+            .commit(DATE, { '--date': DATE }, makeCommit.bind(this, --n))
+            .push(['-u', 'origin', process.env.BRANCH_NAME], () => console.log('Processing => ', DATE, 'DONE'))
+    })
+}
 
-makeCommit(1000);
+git
+    .addConfig('user.name', process.env.GIT_NAME)
+    .addConfig('user.email', process.env.GIT_EMAIL)
+    .checkIsRepo()
+    .then(isRepo => !isRepo && initialiseRepo(git))
+    .then(() => git.fetch())
+
+makeCommit(process.env.LOAD_COMMIT)
